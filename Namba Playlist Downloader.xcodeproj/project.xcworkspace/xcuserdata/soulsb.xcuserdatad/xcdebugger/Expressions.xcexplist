@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<VariablesViewState
+   version = "1.0">
+   <ContextStates>
+      <ContextState
+         contextName = "ViewController.parseJSON(String) -&gt; ():ViewController.swift">
+         <PersistentStrings>
+            <PersistentString
+               value = "str12">
+            </PersistentString>
+            <PersistentString
+               value = "mp3s">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "ViewController.getSongs(AnyObject) -&gt; ():ViewController.swift">
+         <PersistentStrings>
+            <PersistentString
+               value = "song.cell">
+            </PersistentString>
+            <PersistentString
+               value = "playlistURL.stringValue">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "ViewController.URLSession(NSURLSession, downloadTask : NSURLSessionDownloadTask, didWriteData : Int64, totalBytesWritten : Int64, totalBytesExpectedToWrite : Int64) -&gt; ():ViewController.swift">
+         <PersistentStrings>
+            <PersistentString
+               value = "progressBarNew.doubleValue">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "ViewController.tableView(NSTableView, viewForTableColumn : NSTableColumn?, row : Int) -&gt; NSView?:ViewController.swift">
+         <PersistentStrings>
+            <PersistentString
+               value = "cellView.tag">
+            </PersistentString>
+            <PersistentString
+               value = "tableColumn!.identifier">
+            </PersistentString>
+            <PersistentString
+               value = "cellView.playButton.identifier">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "ViewController.playMusic(NSButtonCell) -&gt; ():ViewController.swift">
+         <PersistentStrings>
+            <PersistentString
+               value = "sender.identifier">
+            </PersistentString>
+            <PersistentString
+               value = "sender.stringValue">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+   </ContextStates>
+</VariablesViewState>
