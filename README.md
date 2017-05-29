@@ -1,6 +1,6 @@
 # namba-playlist-downloader-swift
 
-My first Swift app for Mac.
+Swift app for Mac.
 
 This app downloads playlists from Namba.kg 
 
