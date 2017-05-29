@@ -32,14 +32,14 @@ class ViewController: NSViewController{
     
     @IBOutlet weak var progressLabel: NSTextField!
     var songs = [Song]()
-    var path2:NSURL?
+    var path2:URL?
     
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
     }
 
-    override var representedObject: AnyObject? {
+    override var representedObject: Any? {
         didSet {
         // Update the view, if already loaded.
         }
@@ -47,11 +47,10 @@ class ViewController: NSViewController{
     
     
     // it doesn't work for now.
-    @IBAction func playMusic(sender: NSButtonCell) {
+    @IBAction func playMusic(_ sender: NSButtonCell) {
         
-        sender
         let url = songs[Int(sender.tag)].getLink()
-        let playerItem = AVPlayerItem( URL:NSURL( string:url )! )
+        let playerItem = AVPlayerItem( url:URL( string:url )! )
         player = AVPlayer(playerItem:playerItem)
         player.rate = 1.0
         player.volume = 1.0
@@ -61,19 +60,19 @@ class ViewController: NSViewController{
     
     @IBOutlet weak var downloadButton: NSButton!
     
-    @IBAction func getSongs(sender: AnyObject) {
+    @IBAction func getSongs(_ sender: AnyObject) {
         
         
         songs = [Song]()
         var myID=""
-        var new1 = playlistURL.stringValue.componentsSeparatedByString("/")
+        var new1 = playlistURL.stringValue.components(separatedBy: "/")
         
-            myID =  new1[new1.count-1].stringByTrimmingCharactersInSet(NSCharacterSet.init(charactersInString: "la t, \n \" ':"))
+            myID =  new1[new1.count-1].trimmingCharacters(in: CharacterSet.init(charactersIn: "la t, \n \" ':"))
         
             if myID == ""
             {
                 if (new1.count-2>=0){
-                myID = new1[new1.count-2].stringByTrimmingCharactersInSet(NSCharacterSet.init(charactersInString: "la t, \n \" ':"))
+                myID = new1[new1.count-2].trimmingCharacters(in: CharacterSet.init(charactersIn: "la t, \n \" ':"))
                 }
                 else{
                     progressLabel.stringValue = ("Неверно введен URL")
@@ -91,34 +90,34 @@ class ViewController: NSViewController{
         
             tableView.reloadData()
         
-            downloadButton.enabled = true
+            downloadButton.isEnabled = true
 
         
     }
     
-    func convertToJSONUrl(myID:String) -> String {
+    func convertToJSONUrl(_ myID:String) -> String {
         return "http://namba.kg/api/?service=music&action=playlist_page&id="+myID
     }
     
     @IBOutlet weak var text: NSTextField!
     
-    @IBAction func openDir(sender: AnyObject) {
+    @IBAction func openDir(_ sender: AnyObject) {
             let myOpenDialog: NSOpenPanel = NSOpenPanel()
             myOpenDialog.canChooseFiles = false
             myOpenDialog.canChooseDirectories = true
             myOpenDialog.runModal()
         
-            let path = myOpenDialog.URL?.path
+            let path = myOpenDialog.url?.path
 
-            path2 = (myOpenDialog.URL)!
+            path2 = (myOpenDialog.url)!
             // Make sure that a path was chosen
             if (path != nil) {
                 text.stringValue = String(path!)
             }
         }
 
-    @IBAction func downloadSongs(sender: AnyObject) {
-        downloadButton.enabled = false
+    @IBAction func downloadSongs(_ sender: AnyObject) {
+        downloadButton.isEnabled = false
         if (text.stringValue == "")
         {
         openDir(downloadButton)
@@ -128,15 +127,15 @@ class ViewController: NSViewController{
         for song in songs{
             //  First you need to create your audio url
             
-            if let audioUrl = NSURL(string: song.getLink()) {
+            if let audioUrl = URL(string: song.getLink()) {
                 
                 // then lets create your document folder url
                 let documentsDirectoryURL =  path2
                 
                 // lets create your destination file url
-                let destinationUrl = documentsDirectoryURL!.URLByAppendingPathComponent(song.songTitle+".mp3")
+                let destinationUrl = documentsDirectoryURL!.appendingPathComponent(song.songTitle+".mp3")
                 
-                if NSFileManager().fileExistsAtPath(destinationUrl.path!) {
+                if FileManager().fileExists(atPath: destinationUrl.path) {
                     print("Файл \(song.songTitle) уже существует")
                     
                     // if the file doesn't exist
@@ -155,16 +154,16 @@ class ViewController: NSViewController{
         }
         
     }
-    func parseJSON(playlistURL:String)
+    func parseJSON(_ playlistURL:String)
     {
-        if let myURL = NSURL(string: playlistURL){
-        if let myURLData = NSData(contentsOfURL:myURL) {
+        if let myURL = URL(string: playlistURL){
+        if let myURLData = try? Data(contentsOf: myURL) {
         
         
         do {
-            let json = try NSJSONSerialization.JSONObjectWithData(myURLData, options: .AllowFragments)
+            let json = try JSONSerialization.jsonObject(with: myURLData, options: .allowFragments) as! [String:Any]
             
-            if let mp3s = json["mp3Files"] as? [[String: AnyObject]] {
+            if let mp3s = json["mp3Files"] as? [[String: Any]] {
                 
                 for mp3 in mp3s {
                     if let name = mp3["filename"] as? String {
@@ -175,19 +174,19 @@ class ViewController: NSViewController{
             }
             // getting album img file.
             do  {
-            var str12 = try String(contentsOfURL: myURL, encoding: NSUTF8StringEncoding)
+            var str12 = try String(contentsOf: myURL, encoding: String.Encoding.utf8)
          
-                let replaced = (str12 as NSString).stringByReplacingOccurrencesOfString("\\", withString: "")
+                let replaced = (str12 as NSString).replacingOccurrences(of: "\\", with: "")
                 
-                let start1 = replaced.rangeOfString("cover_url\":\"")
+                let start1 = replaced.range(of: "cover_url\":\"")
                 
-                str12 = replaced.substringFromIndex(start1!.endIndex)
+                str12 = replaced.substring(from: start1!.upperBound)
                 
-                let end1 = str12.rangeOfString("\",\"login")
+                let end1 = str12.range(of: "\",\"login")
                 
-                str12 = str12.substringToIndex(end1!.startIndex)
+                str12 = str12.substring(to: end1!.lowerBound)
                 
-                albumImg.image = NSImage(contentsOfURL: NSURL(string: str12)!)
+                albumImg.image = NSImage(contentsOf: URL(string: str12)!)
            
             }
             
@@ -216,13 +215,13 @@ class ViewController: NSViewController{
 
 
 extension ViewController: NSTableViewDataSource {
-    func numberOfRowsInTableView(aTableView: NSTableView) -> Int {
+    func numberOfRows(in aTableView: NSTableView) -> Int {
         return self.songs.count
     }
     
-    func tableView(tableView: NSTableView, viewForTableColumn tableColumn: NSTableColumn?, row: Int) -> NSView? {
+    func tableView(_ tableView: NSTableView, viewFor tableColumn: NSTableColumn?, row: Int) -> NSView? {
         // 1
-        let cellView: myCell = tableView.makeViewWithIdentifier(tableColumn!.identifier, owner: self) as! myCell
+        let cellView: myCell = tableView.make(withIdentifier: tableColumn!.identifier, owner: self) as! myCell
         
         // 2
         if tableColumn!.identifier == "songsColumn" {

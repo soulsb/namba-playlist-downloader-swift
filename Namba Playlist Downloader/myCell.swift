@@ -17,7 +17,7 @@ class myCell: NSTableCellView {
     @IBOutlet weak var checkButton: NSButton!
     var myObject: Song?
   
-    override func drawRect(dirtyRect: NSRect) {
+    override func draw(_ dirtyRect: NSRect) {
         self.imageView?.layer?.cornerRadius = 5
         
         // Drawing code here.

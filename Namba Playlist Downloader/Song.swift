@@ -11,19 +11,19 @@ import AppKit
 import AVFoundation
 
 
-var myPath2:NSURL?
+var myPath2:URL?
 
-class Song: NSObject, NSURLSessionDelegate,NSURLSessionDataDelegate,NSURLSessionDownloadDelegate  {
+class Song: NSObject, URLSessionDelegate,URLSessionDataDelegate,URLSessionDownloadDelegate  {
     
     
-    var session:NSURLSession?
-    var dataTask:NSURLSessionDataTask?
+    var session:Foundation.URLSession?
+    var dataTask:URLSessionDataTask?
     var infoDic = NSMutableDictionary()
     
     
-    private var _songTitle:String = ""
+    fileprivate var _songTitle:String = ""
     
-    private var _checked:Bool?
+    fileprivate var _checked:Bool?
     
     var isChecked:Bool {
         
@@ -40,7 +40,7 @@ class Song: NSObject, NSURLSessionDelegate,NSURLSessionDataDelegate,NSURLSession
         }
     }
     
-    private var _cell:myCell?
+    fileprivate var _cell:myCell?
     
     var cell:myCell {
         get
@@ -67,7 +67,7 @@ class Song: NSObject, NSURLSessionDelegate,NSURLSessionDataDelegate,NSURLSession
         
     }
     
-    private var _imageFile:NSImage?
+    fileprivate var _imageFile:NSImage?
     
     var imageFile:NSImage {
         get
@@ -88,7 +88,7 @@ class Song: NSObject, NSURLSessionDelegate,NSURLSessionDataDelegate,NSURLSession
         }
     }
     
-    private var _songID:String
+    fileprivate var _songID:String
     
     var songID: String {
         get
@@ -118,16 +118,16 @@ class Song: NSObject, NSURLSessionDelegate,NSURLSessionDataDelegate,NSURLSession
     }
     
 
-    func md5(s:String) -> String {
+    func md5(_ s:String) -> String {
         
         
-        let context = UnsafeMutablePointer<CC_MD5_CTX>.alloc(1)
-        var digest = Array<UInt8>(count:Int(CC_MD5_DIGEST_LENGTH), repeatedValue:0)
+        let context = UnsafeMutablePointer<CC_MD5_CTX>.allocate(capacity: 1)
+        var digest = Array<UInt8>(repeating: 0, count: Int(CC_MD5_DIGEST_LENGTH))
         CC_MD5_Init(context)
         CC_MD5_Update(context, s,
-                      CC_LONG(s.lengthOfBytesUsingEncoding(NSUTF8StringEncoding)))
+                      CC_LONG(s.lengthOfBytes(using: String.Encoding.utf8)))
         CC_MD5_Final(&digest, context)
-        context.dealloc(1)
+        context.deallocate(capacity: 1)
         var hexString = ""
         for byte in digest {
             hexString += String(format:"%02x", byte)
@@ -136,14 +136,14 @@ class Song: NSObject, NSURLSessionDelegate,NSURLSessionDataDelegate,NSURLSession
         
     }
     
-    func startDownloading(audioUrl:NSURL,path2:NSURL)
+    func startDownloading(_ audioUrl:URL,path2:URL)
     {
         
-        let configuration = NSURLSessionConfiguration.defaultSessionConfiguration()
-        let manqueue = NSOperationQueue.mainQueue()
-        session = NSURLSession(configuration: configuration, delegate:self, delegateQueue: manqueue)
+        let configuration = URLSessionConfiguration.default
+        let manqueue = OperationQueue.main
+        session = Foundation.URLSession(configuration: configuration, delegate:self, delegateQueue: manqueue)
         myPath2 = path2
-        dataTask = session?.dataTaskWithRequest(NSURLRequest(URL: audioUrl))
+        dataTask = session?.dataTask(with: URLRequest(url: audioUrl))
         dataTask?.resume()
         
         
@@ -151,26 +151,26 @@ class Song: NSObject, NSURLSessionDelegate,NSURLSessionDataDelegate,NSURLSession
     }
 
     
-    func URLSession(session: NSURLSession, dataTask: NSURLSessionDataTask, didReceiveResponse response: NSURLResponse, completionHandler: (NSURLSessionResponseDisposition) -> Void) {
+    func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive response: URLResponse, completionHandler: @escaping (URLSession.ResponseDisposition) -> Void) {
         //NSLog("%@",response.description)
-        completionHandler(NSURLSessionResponseDisposition.BecomeDownload)
+        completionHandler(Foundation.URLSession.ResponseDisposition.becomeDownload)
     }
     
-    func URLSession(session: NSURLSession, downloadTask: NSURLSessionDownloadTask, didWriteData bytesWritten: Int64, totalBytesWritten: Int64, totalBytesExpectedToWrite: Int64) {
+    func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didWriteData bytesWritten: Int64, totalBytesWritten: Int64, totalBytesExpectedToWrite: Int64) {
         
         cell.myProgress.doubleValue = Double(totalBytesWritten)/Double(totalBytesExpectedToWrite)*100;
     }
     
-    func URLSession(session: NSURLSession, dataTask: NSURLSessionDataTask, didBecomeDownloadTask downloadTask: NSURLSessionDownloadTask) {
+    func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didBecome downloadTask: URLSessionDownloadTask) {
         
         downloadTask.resume()
         
         
         
     }
-    func URLSession(session: NSURLSession, downloadTask: NSURLSessionDownloadTask, didFinishDownloadingToURL location: NSURL) {
+    func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didFinishDownloadingTo location: URL) {
         do{
-            try NSFileManager().moveItemAtURL(location, toURL: myPath2!.URLByAppendingPathComponent(String(cell.textField!.stringValue)+".mp3"))
+            try FileManager().moveItem(at: location, to: myPath2!.appendingPathComponent(String(cell.textField!.stringValue)+".mp3"))
             
             cell.checkButton.state = 1
             
